@@ -3,35 +3,31 @@ from sklearn.metrics import r2_score
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-df=pd.read_csv("Height_weight.csv")
+df=pd.read_csv("LinearRegression\Height_weight.csv")
 df=df.dropna()
-x1=df["Height"].values
-x=np.vstack((np.ones(len(x1)),x1)).T
-y=df["Weight"].values.reshape(15,1)
-def model(x,y,lr=0.25):
-    m = len(y)
-    min=sys.maxsize
-    theta = np.zeros((2, 1))
-    ypred = np.dot(x, theta)
-    dtheta = np.dot(x.T, ypred - y) / m
-    prev=dtheta
-    theta = theta - lr * dtheta
-    count=0
-    while(True):
-        count=count+1
-        ypred=np.dot(x,theta)
-        dtheta=np.dot(x.T,ypred-y)/m
-        if prev[1]*dtheta[1]<0:
-            break
-        else:
-            prev=dtheta
-            theta = theta - lr * dtheta
-    return theta
+x=df[["Height"]].values
+y=df["Weight"].values
+plt.show()
+print(x.shape,y.shape)
+def train_model(x,y,lr=0.25):
+    n=len(x)
+    x_mean=sum(x)/n
+    y_mean=sum(y)/n
+    xy_sum=0
+    x_square_sum=0
+    for k in range(n):
+        xy_sum=xy_sum+(x[k]*y[k])
+        x_square_sum=x_square_sum+(x[k]*x[k])
+    m=(xy_sum-n*x_mean*y_mean)/(x_square_sum-n*x_mean*x_mean)
+    c=y_mean-(m*x_mean)
+    return (m,c)
 
-theta=model(x,y)
-ypred=np.dot(x,theta)
-print(ypred)
-print(r2_score(y,ypred)*100)
-plt.scatter(x1,y)
-plt.plot(x1,ypred)
+m,c=train_model(x,y)
+ypred=[]
+for i in range(len(x)):
+    yp=m*x+c
+    ypred.append(yp)
+print(r2_score(y,ypred[0])*100)
+plt.scatter(x,y)
+plt.plot(x,ypred[0])
 plt.show()
